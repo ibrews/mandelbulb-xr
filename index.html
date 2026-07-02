@@ -157,7 +157,7 @@ else{
     cvs.addEventListener('pointerdown',e=>{dragging=true;interacted=true;const p=xy(e);lastX=p[0];lastY=p[1];cvs.setPointerCapture&&cvs.setPointerCapture(e.pointerId);});
     addEventListener('pointerup',()=>{dragging=false;});
     addEventListener('pointermove',e=>{if(!dragging)return;const p=xy(e);
-      yaw   -= (p[0]-lastX)*0.006;                       // horizontal drag = orbit
+      yaw   += (p[0]-lastX)*0.006;                       // horizontal drag = orbit (drag direction follows the cursor)
       pitch  = Math.max(-1.4,Math.min(1.4,pitch+(p[1]-lastY)*0.006)); // clamp so it can't flip over the poles
       lastX=p[0];lastY=p[1];});
     function resize(){const w=Math.floor(innerWidth*devicePixelRatio),h=Math.floor(innerHeight*devicePixelRatio);if(cvs.width!==w||cvs.height!==h){cvs.width=w;cvs.height=h;}gl.viewport(0,0,cvs.width,cvs.height);}
