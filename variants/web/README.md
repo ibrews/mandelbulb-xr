@@ -1,10 +1,15 @@
 # Web / WebGL variant
 
-_Planned._ A minimal self-contained HTML page that runs `core/mandelbulb.glsl`
-in a WebGL2 canvas (and optionally enters VR via WebXR — works in the Quest
-browser). Zero install, embeddable in a page or tweet.
+**Live: [ibrews.github.io/mandelbulb-xr](https://ibrews.github.io/mandelbulb-xr/)**
 
-Good first contribution: wrap the core in a full-screen WebGL2 quad with an
-orbit camera (mirror the Shadertoy variant's camera + evolution). The Shadertoy
-`.glsl` is ~90% of it — it mostly needs the boilerplate WebGL host + a
-`requestAnimationFrame` loop feeding `iTime`/`iResolution`/`iMouse`.
+A self-contained WebGL2 page that runs the fractal in any modern browser (desktop
+or mobile) — drag to orbit. The source is [`../../index.html`](../../index.html) at
+the repo root (root so GitHub Pages serves it as the site's front door).
+
+It's a single file: a full-screen fragment shader (the same raymarch as
+`core/mandelbulb.glsl`, adapted to GLSL ES 3.00), a tiny WebGL2 host, and a
+`requestAnimationFrame` loop feeding `u_time` / `u_resolution` / `u_mouse`. No
+build step, no dependencies.
+
+Next: a WebXR "Enter VR" button (works in the Quest browser) — the render loop is
+already there; it needs an `XRSession` + per-eye view matrices driving the camera.

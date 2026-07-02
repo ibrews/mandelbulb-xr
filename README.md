@@ -8,12 +8,14 @@ The "power" parameter doesn't ping-pong on a single sine like most animated
 Mandelbulbs — it **wanders quasi-periodically** (two incommensurate sines), so the
 shape morphs organically and never obviously reverses or repeats.
 
-> _(Add a GIF/screenshot here — record the Shadertoy variant.)_
+> _(Add a GIF/screenshot here — capture the live demo below.)_
 
-## Try it in 30 seconds
-Open [shadertoy.com/new](https://www.shadertoy.com/new), paste
-[`variants/shadertoy/mandelbulb.glsl`](variants/shadertoy/mandelbulb.glsl), hit
-the ▶ button, and drag the mouse to orbit. That's it — no install.
+## ▶ Try it live (no install)
+**[ibrews.github.io/mandelbulb-xr](https://ibrews.github.io/mandelbulb-xr/)** — runs
+in your browser, drag to orbit. Works on desktop and mobile (WebGL2).
+
+Or paste [`variants/shadertoy/mandelbulb.glsl`](variants/shadertoy/mandelbulb.glsl)
+into [shadertoy.com/new](https://www.shadertoy.com/new) and hit ▶.
 
 ## Variants
 | Variant | Runs on | Reach |
