@@ -37,7 +37,7 @@ precision highp float;
 out vec4 outColor;
 uniform float u_time;
 uniform vec2  u_resolution;
-uniform vec4  u_mouse;   // x,y = pos; z = down(1)/up(0)
+uniform vec2  u_cam;     // yaw, pitch (radians) — driven by the JS orbit control
 
 #define MAX_STEPS 150
 #define ITERS 10
@@ -85,8 +85,8 @@ void main(){
   vec2 uv=(2.0*gl_FragCoord.xy-u_resolution.xy)/u_resolution.y;
   float et=u_time;
   float power=7.5+1.4*sin(et*0.11)+0.9*sin(et*0.063+1.7);
-  float yaw   = u_mouse.z>0.5 ? (u_mouse.x/u_resolution.x-0.5)*6.2832 : u_time*0.15;
-  float pitch = u_mouse.z>0.5 ? (u_mouse.y/u_resolution.y-0.5)*3.0    : 0.35;
+  float yaw   = u_cam.x;
+  float pitch = u_cam.y;
   float cp=cos(pitch),sp=sin(pitch);
   vec3 ro=3.2*vec3(cos(yaw)*cp,sp,sin(yaw)*cp);
   vec3 ww=normalize(-ro),uu=normalize(cross(ww,vec3(0,1,0))),vv=cross(uu,ww);
@@ -148,17 +148,25 @@ else{
     const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);
     gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
     const loc=gl.getAttribLocation(prog,'p');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
-    const uT=gl.getUniformLocation(prog,'u_time'),uR=gl.getUniformLocation(prog,'u_resolution'),uM=gl.getUniformLocation(prog,'u_mouse');
-    let mouse={x:0,y:0,down:0};
-    function pos(e){const r=cvs.getBoundingClientRect();const cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left;const cy=(e.touches?e.touches[0].clientY:e.clientY)-r.top;mouse.x=cx*devicePixelRatio;mouse.y=(r.height-cy)*devicePixelRatio;}
-    cvs.addEventListener('pointerdown',e=>{mouse.down=1;pos(e);});
-    addEventListener('pointerup',()=>{mouse.down=0;});
-    addEventListener('pointermove',e=>{if(mouse.down)pos(e);});
+    const uT=gl.getUniformLocation(prog,'u_time'),uR=gl.getUniformLocation(prog,'u_resolution'),uC=gl.getUniformLocation(prog,'u_cam');
+    // Orbit camera: relative drag, seeded from the auto-orbit so there's no snap.
+    // Auto-orbits until the first grab, then stays where you leave it.
+    let yaw=0.35, pitch=0.35, dragging=false, lastX=0, lastY=0, interacted=false;
+    function xy(e){return [e.clientX!==undefined?e.clientX:e.touches[0].clientX,
+                           e.clientY!==undefined?e.clientY:e.touches[0].clientY];}
+    cvs.addEventListener('pointerdown',e=>{dragging=true;interacted=true;const p=xy(e);lastX=p[0];lastY=p[1];cvs.setPointerCapture&&cvs.setPointerCapture(e.pointerId);});
+    addEventListener('pointerup',()=>{dragging=false;});
+    addEventListener('pointermove',e=>{if(!dragging)return;const p=xy(e);
+      yaw   -= (p[0]-lastX)*0.006;                       // horizontal drag = orbit
+      pitch  = Math.max(-1.4,Math.min(1.4,pitch+(p[1]-lastY)*0.006)); // clamp so it can't flip over the poles
+      lastX=p[0];lastY=p[1];});
     function resize(){const w=Math.floor(innerWidth*devicePixelRatio),h=Math.floor(innerHeight*devicePixelRatio);if(cvs.width!==w||cvs.height!==h){cvs.width=w;cvs.height=h;}gl.viewport(0,0,cvs.width,cvs.height);}
     addEventListener('resize',resize);resize();
     const t0=performance.now();
     function frame(now){resize();gl.useProgram(prog);
-      gl.uniform1f(uT,(now-t0)/1000);gl.uniform2f(uR,cvs.width,cvs.height);gl.uniform4f(uM,mouse.x,mouse.y,mouse.down,0);
+      const t=(now-t0)/1000;
+      if(!interacted) yaw=0.35+t*0.15;                    // gentle auto-orbit until first grab (seeds the drag → no snap)
+      gl.uniform1f(uT,t);gl.uniform2f(uR,cvs.width,cvs.height);gl.uniform2f(uC,yaw,pitch);
       gl.drawArrays(gl.TRIANGLES,0,3);requestAnimationFrame(frame);}
     requestAnimationFrame(frame);
   }
