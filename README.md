@@ -43,3 +43,7 @@ D3D11 variant is a line-for-line HLSL port. To add a platform, wire your camera
 MIT — see [LICENSE](LICENSE). Distance-estimator + orbit-trap technique follows
 [Inigo Quilez](https://iquilezles.org)'s Mandelbulb work; this repo adds the
 portable core, the quasi-periodic "living" evolution, and the XR/streaming variants.
+
+## Support
+
+If you like seeing this kind of thing get built and shared, [donations are always welcome](https://www.alexcoulombepresents.com/support) — they buy hardware, render time, and the freedom to keep giving most of this away.
